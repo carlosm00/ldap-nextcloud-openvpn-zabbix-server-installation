@@ -70,7 +70,7 @@ DB_PS=0
 # [EN] Redirection to zabbix home page / [ES] Redirección a la página principal de zabbix
 echo -n "[EN] Write your domain / [Es] Escriba su dominio : "
 read DOM
-echo $DOM | grep "." >success_zabbix.log
+echo $DOM | grep "." >>success_zabbix.log
 if [ $? != 0 ]
 then
     echo "[EN] Your domain name must contain at least a dot / [ES] Su dominio debe contener mínimo un punto "
@@ -188,7 +188,7 @@ then
     apt install zabbix-server-pgsql zabbix-frontend-php zabbix-agent -y 1>>success_zabbix.log 2>>error_zabbix.log
 # [EN] Execution function for 3 / [ES] Ejecución de función para 3
     conf
-# [EN] Execution function for 3 / [ES] Ejecución de función para 3
+# [EN] Execution function for 4 / [ES] Ejecución de función para 4
     zbx_tem 
 # [EN] End / [ES] Fin
     echo "[EN] Installation finished! / [ES] ¡Instalación acabada!"
