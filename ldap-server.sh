@@ -51,7 +51,7 @@ fi
 
 cd /etc/ldap/ 1>>success_ldap.log 2>>error_ldap.log
 cp /etc/ldap/ldap.conf /etc/ldap/ldap-.conf 1>>success_ldap.log 2>>error_ldap.log
-cat << "EOL" > /etc/ldap/ldap.conf
+cat << EOL > /etc/ldap/ldap.conf
 BASE dc=${DOM%.*},dc=${DOM*.%}
 URI ldap://$IP
 TLS_CACERT	/etc/ssl/certs/ca-certificates.crt
