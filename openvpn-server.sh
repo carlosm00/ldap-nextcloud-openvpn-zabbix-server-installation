@@ -122,7 +122,7 @@ then
 #
     wget -q https://curl.haxx.se/ca/cacert-2020-01-01.pem 1>>success_openvpn.log 2>>error_openvpn.log
     mv cacert-2020-01-01.pem /etc/ssl/certs 1>>success_openvpn.log 2>>error_openvpn.log
-#
+# [EN] Execution function for 3 / [ES] Ejecución de función para 3
     zbx_agn
 # [EN] End / [ES] Fin
     echo "[EN] Installation finished! / [ES] ¡Instalación acabada!"
