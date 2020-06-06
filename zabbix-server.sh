@@ -48,7 +48,7 @@ zcat /usr/share/doc/zabbix-server-pgsql/create.sql.gz | sudo -u zabbix psql zabb
 # [EN] Backup for zabbix server config file / [ES] Copia de seguridad del archivo ed configuración del servidor de zabbix
 cp /etc/zabbix/zabbix_server.conf /etc/zabbix/zabbix_server-.conf 1>>success_zabbix.log 2>>error_zabbix.log
 # [EN] / [ES]
-cat << "EOL" > /etc/zabbix/zabbix_server.conf
+cat << EOL > /etc/zabbix/zabbix_server.conf
 LogFile=/var/log/zabbix/zabbix_server.log
 LogFileSize=0
 DebugLevel=3
@@ -78,7 +78,7 @@ then
     echo -n "[EN] Write your domain / [Es] Escriba su dominio : "
     read DOM
 fi
-cat << "EOL" > /var/www/html/index.html
+cat << EOL > /var/www/html/index.html
 <!DOCTYPE html>
 <html>
    <head>
