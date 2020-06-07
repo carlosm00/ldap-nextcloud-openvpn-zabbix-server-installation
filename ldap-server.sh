@@ -20,8 +20,8 @@
 # logs
 mkdir /tmp/ldap_installation
 PROGNAME=$(basename $0)
-echo "${PROGNAME}:" >success_ldap.log
-echo "${PROGNAME}:" >error_ldap.log
+echo "${PROGNAME}:" >/tmp/ldap_installation/success_ldap.log
+echo "${PROGNAME}:" >/tmp/ldap_installation/error_ldap.log
 #
 #############################################################
 #
