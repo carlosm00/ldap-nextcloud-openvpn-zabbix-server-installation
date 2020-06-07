@@ -18,29 +18,29 @@
 #
 # logs
 PROGNAME=$(basename $0)
-echo "${PROGNAME}:" >success_openvpn.log
-echo "${PROGNAME}:" >error_openvpn.log
+mkdir /tmp/openvpn_installation
+echo "${PROGNAME}:" >/tmp/openvpn_installation/success_ldap.log
+echo "${PROGNAME}:" >/tmp/openvpn_installation/error_ldap.log
 #
 ############################################################# 
 #
 # [EN] Function for 3 - zabbix agent / [ES] Función para 3 - agente de zabbix
 #
+    zabbix_ip () {
+        echo -n "[EN] Zabbix Server IP / [ES] IP del Servidor de Zabbix : "
+        read $ZS
+    }
 zbx_agn () {
 echo -e -n "[EN] Do you want to enable this server as a ZABBIX AGENT? / [ES] ¿Desea habilitar este servidor como AGENTE de ZABBIX? \n[Y/n]: "
 read
 if [[ $REPLY == "y" ]] || [[ $REPLY == "Y" ]]
 then
-    apt -qq install zabbix-agent fping -y 1>>success_openvpn.log 2>>error_openvpn.log
-    cd /etc/zabbix 1>>success_openvpn.log 2>>error_openvpn.log
-    cp zabbix_agentd.conf zabbix_agentd--.conf 1>>success_openvpn.log 2>>error_openvpn.log
-#
-    zabbix_ip () {
-        echo -n "[EN] Zabbix Server IP / [ES] IP del Servidor de Zabbix : "
-        read $ZS
-    }
+    apt -qq install zabbix-agent fping -y 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
+    cd /etc/zabbix 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
+    cp zabbix_agentd.conf zabbix_agentd--.conf 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
 #
     zabbix_ip
-    fping $ZS 1>>success_openvpn.log 2>>error_openvpn.log
+    fping $ZS 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
     if [ $? != 0 ]
     then
         echo -ne "[EN] This server is not reachable / [ES] Este servidor no es accesible \n [EN] Do you still want to use this IP ?/ [ES] ¿Sigue queriendo usar esta IP? \n [Y/n]: "
@@ -72,11 +72,11 @@ UserParameter=user_byte_sent.openvpn[*], if [ "`grep -c $1, /var/log/openvpn-sta
 UserParameter=discovery.openvpn.ipp,/etc/zabbix/scripts/discover_vpn_ipp.sh # for discovery with ifconfig-pool-persist
 EOL
 #
-    service zabbix-agent restart 1>>success_openvpn.log 2>>error_openvpn.log
+    service zabbix-agent restart 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
 #
-    mkdir /etc/zabbix/scripts 1>>success_openvpn.log 2>>error_openvpn.log
-    cd /etc/zabbix/scripts 1>>success_openvpn.log 2>>error_openvpn.log
-    wget -q https://raw.githubusercontent.com/Grifagor/zabbix-openvpn/master/discover_vpn_ipp.sh 1>>success_openvpn.log 2>>error_openvpn.log
+    mkdir /etc/zabbix/scripts 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
+    cd /etc/zabbix/scripts 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
+    wget -q https://raw.githubusercontent.com/Grifagor/zabbix-openvpn/master/discover_vpn_ipp.sh 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
 cat << 'EOL' > discover_vpn.sh
 #!/bin/bash
 # This is a modification from https://github.com/Grifagor/zabbix-openvpn/blob/master/discover_vpn.sh
@@ -112,16 +112,16 @@ OSV=`grep VERSION_CODENAME /etc/os-release | cut -c18-`
 # 2. apt / dnf
 if [[ $OS == *"buntu"* ]] || [[ $OS == *"ebian"* ]]
 then
-    apt -qq update 1>>success_openvpn.log 2>>error_openvpn.log
-    apt -qq -y install ca-certificates wget net-tools gnupg 1>>success_openvpn.log 2>>error_openvpn.log
+    apt -qq update 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
+    apt -qq -y install ca-certificates wget net-tools gnupg 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
     wget -qO - https://as-repository.openvpn.net/as-repo-public.gpg | apt-key add - 
     echo "deb http://as-repository.openvpn.net/as/debian $OSV main" > /etc/apt/sources.list.d/openvpn-as-repo.list
-    apt -qq update && apt -qq -y install openvpn-as 1>>success_openvpn.log 2>>error_openvpn.log
+    apt -qq update && apt -qq -y install openvpn-as 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
 #
     passwd openvpn
 #
-    wget -q https://curl.haxx.se/ca/cacert-2020-01-01.pem 1>>success_openvpn.log 2>>error_openvpn.log
-    mv cacert-2020-01-01.pem /etc/ssl/certs 1>>success_openvpn.log 2>>error_openvpn.log
+    wget -q https://curl.haxx.se/ca/cacert-2020-01-01.pem 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
+    mv cacert-2020-01-01.pem /etc/ssl/certs 1>>/tmp/openvpn_installation/success_openvpn.log 2>>/tmp/openvpn_installation/error_openvpn.log
 # [EN] Execution function for 3 / [ES] Ejecución de función para 3
     zbx_agn
 # [EN] End / [ES] Fin
