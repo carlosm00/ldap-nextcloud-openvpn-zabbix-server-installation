@@ -18,6 +18,7 @@
 #   4. Agente de Zabbix
 #
 # logs
+mkdir /tmp/ldap_installation
 PROGNAME=$(basename $0)
 echo "${PROGNAME}:" >success_ldap.log
 echo "${PROGNAME}:" >error_ldap.log
@@ -29,7 +30,7 @@ echo "${PROGNAME}:" >error_ldap.log
 conf () {
 echo -n "[EN] Write your domain / [Es] Escriba su dominio : "
 read DOM
-echo $DOM | grep "." >>success_ldap.log
+echo $DOM | grep "." >>/tmp/ldap_installation/success_ldap.log
 if [ $? != 0 ]
 then
     echo "[EN] Your domain name must contain at least a dot / [ES] Su dominio debe contener mínimo un punto "
@@ -49,10 +50,12 @@ then
     IP=`/sbin/ifconfig $INT | grep 'inet ' | cut -d "n" -f2 | cut -c4-`
 fi
 
-cd /etc/ldap/ 1>>success_ldap.log 2>>error_ldap.log
-cp /etc/ldap/ldap.conf /etc/ldap/ldap-.conf 1>>success_ldap.log 2>>error_ldap.log
+cd /etc/ldap/ 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+cp /etc/ldap/ldap.conf /etc/ldap/ldap-.conf 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+dc1=${DOM%.*}
+dc2=`echo $DOM | cut -d "." -f 2`
 cat << EOL > /etc/ldap/ldap.conf
-BASE dc=${DOM%.*},dc=${DOM*.%}
+BASE dc=$dc1,dc=$dc2
 URI ldap://$IP
 TLS_CACERT	/etc/ssl/certs/ca-certificates.crt
 EOL
@@ -62,22 +65,22 @@ EOL
 #
 # [EN] Function for 4 - zabbix agent / [ES] Función para 4 - agente de zabbix
 #
+zabbix_ip () {
+    echo -n "[EN] Zabbix Server IP / [ES] IP del Servidor de Zabbix : "
+    read $ZS
+}
+#
 zbx_agn () {
 echo -e -n "[EN] Do you want to enable this server as a ZABBIX AGENT? / [ES] ¿Desea habilitar este servidor como AGENTE de ZABBIX? \n[Y/n]: "
 read
 if [[ $REPLY == "y" ]] || [[ $REPLY == "Y" ]]
 then
-    apt -qq install zabbix-agent fping -y 1>>success_ldap.log 2>>error_ldap.log
-    cd /etc/zabbix 1>>success_ldap.log 2>>error_ldap.log
-    cp zabbix_agentd.conf zabbix_agentd--.conf 1>>success_ldap.log 2>>error_ldap.log
-#
-    zabbix_ip () {
-        echo -n "[EN] Zabbix Server IP / [ES] IP del Servidor de Zabbix : "
-        read $ZS
-    }
+    apt -qq install zabbix-agent fping -y 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    cd /etc/zabbix 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    cp zabbix_agentd.conf zabbix_agentd--.conf 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
 #
     zabbix_ip
-    fping $ZS 1>>success_ldap.log 2>>error_ldap.log
+    fping $ZS 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
     if [ $? != 0 ]
     then
         echo -ne "[EN] This server is not reachable / [ES] Este servidor no es accesible \n [EN] Do you still want to use this IP ?/ [ES] ¿Sigue queriendo usar esta IP? \n [Y/n]: "
@@ -101,13 +104,13 @@ ServerActive=$ZS
 Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
 EOL
 # [EN] This are the configuration steps for https://github.com/MrCirca/OpenLDAP-Cluster-Zabbix template / [ES] Estos son los pasos de configuración para la plantilla de https://github.com/MrCirca/OpenLDAP-Cluster-Zabbix
-    mkdir /etc/zabbix/external_scripts 1>>success_ldap.log 2>>error_ldap.log
-    cd /etc/zabbix/external_scripts 1>>success_ldap.log 2>>error_ldap.log
-    wget -q https://raw.githubusercontent.com/MrCirca/OpenLDAP-Cluster-Zabbix/master/ldap_check_status.sh 1>>success_ldap.log 2>>error_ldap.log
-    chmod +x ldap_check_status.sh 1>>success_ldap.log 2>>error_ldap.log
-    cd /etc/zabbix/zabbix_agentd.conf.d 1>>success_ldap.log 2>>error_ldap.log
-    wget -q https://raw.githubusercontent.com/MrCirca/OpenLDAP-Cluster-Zabbix/master/openldap_cluster_status.conf 1>>success_ldap.log 2>>error_ldap.log
-    service zabbix-agent restart 1>>success_ldap.log 2>>error_ldap.log
+    mkdir /etc/zabbix/external_scripts 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    cd /etc/zabbix/external_scripts 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    wget -q https://raw.githubusercontent.com/MrCirca/OpenLDAP-Cluster-Zabbix/master/ldap_check_status.sh 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    chmod +x ldap_check_status.sh 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    cd /etc/zabbix/zabbix_agentd.conf.d 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    wget -q https://raw.githubusercontent.com/MrCirca/OpenLDAP-Cluster-Zabbix/master/openldap_cluster_status.conf 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
+    service zabbix-agent restart 1>>/tmp/ldap_installation/success_ldap.log 2>>/tmp/ldap_installation/error_ldap.log
 fi
 }
 #
@@ -124,8 +127,8 @@ OSV=`grep VERSION_CODENAME /etc/os-release`
 if [[ $OS == *"buntu"* ]] || [[ $OS == *"ebian"* ]]
 then
     apt -qq update 1>>success_ldap.log 2>>error_ldap.log
-    apt -qq install -y slapd ldap-utils 1>>success_ldap.log 2>>error_ldap.log
-    dpkg-reconfigure slapd 1>>success_ldap.log 2>>error_ldap.log
+    apt -qq install -y slapd ldap-utils 2>>error_ldap.log
+    dpkg-reconfigure slapd 2>>error_ldap.log
 # [EN] Execution function for 3 / [ES] Ejecución de función para 3
     conf
 # [EN] Execution function for 4 / [ES] Ejecución de función para 4
